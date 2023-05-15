@@ -90,7 +90,13 @@ class FileManager:
          @param base_path base path to start
         """
         self.dir_paths.append(base_path)
-        dir_list = os.listdir(base_path)
+        try:
+            dir_list = os.listdir(base_path)
+            print(dir_list)
+        except:
+            print("Access denied, skip")
+            return
+        # print(dir_list)
         # Recursively construct the directory paths for each directory.
         for name in dir_list:
             path = base_path + name
