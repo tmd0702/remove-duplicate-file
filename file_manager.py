@@ -1,5 +1,5 @@
 import os
-import json
+import shutil
 import hashlib
 import pathlib
 from multiprocessing import Pool
@@ -67,7 +67,20 @@ class FileManager:
         else:
             return False
 
-    def remove_duplicate_file(self, file_path):
+    def _get_file_name(self, file_path):
+        splitted_file_path = file_path.split("/")
+        file_name = splitted_file_path[-1]
+        return file_name
+    def _write_log(self, log_content, log_name):
+        f = open(f"log/{log_name}", "a", encoding="utf-8")
+        f.write(log_content + "\n")
+        f.close()
+    def move_to_parent_folder(self, file_path):
+        dest_path = f'{self._config.get("DEST_PATH")}{self._get_file_name(file_path)}'
+        shutil.move(file_path, dest_path)
+        print(f"File moved from {file_path} to {dest_path}")
+        self._write_log(f"File moved from {file_path} to {dest_path}", "moved.txt")
+    def remove_duplicate_file(self, file_path, move_file):
         """
          @brief Remove file_path if it is new. This method is called by FileManager when a file is removed from the storage
          @param file_path Path to the file
@@ -76,25 +89,29 @@ class FileManager:
         # if file_size and file_hash are duplicated
         if self._is_file_size_duplicated(file_size) and self._is_file_hash_duplicated(file_hash):
             print(f"Remove {file_path} due to duplication. Free {file_size} bytes")
+            self._write_log(f"Remove {file_path} due to duplication. Free {file_size} bytes", "removed.txt")
             self.shared_data.add_total_removal_size(file_size / pow(1024, 3))
             self.shared_data.add_total_removal_count(1)
             os.remove(file_path)
         else:
             self.shared_data.set_hash(file_hash, True)
             self.shared_data.set_size(str(file_size), True)
+            if move_file:
+                self.move_to_parent_folder(file_path)
             print(f"New file {file_path} detected")
+            self._write_log(f"New file {file_path} detected", "unique_file_detected.txt")
 
     def construct_dir_paths(self, base_path):
         """
          @brief Construct list of directories to search for. This is recursive so we don't have to worry about recursion
          @param base_path base path to start
         """
-        self.dir_paths.append(base_path)
+        if base_path != self._config.get("DEST_PATH"):
+            self.dir_paths.append(base_path)
         try:
             dir_list = os.listdir(base_path)
-            print(dir_list)
         except:
-            print("Access denied, skip")
+            print(f"{base_path} - Access denied, skip")
             return
         # print(dir_list)
         # Recursively construct the directory paths for each directory.
@@ -105,7 +122,7 @@ class FileManager:
                 self.construct_dir_paths(path + "/")
 
 
-    def loop_path(self, base_path):
+    def loop_path(self, base_path, move_file=True):
         """
          @brief Loop through directory and check for files with same extension. This is used for cleaning up files that are in the same directory as the test file
          @param base_path path to the directory to
@@ -119,7 +136,7 @@ class FileManager:
                 file_extension = pathlib.Path(path).suffix[1:]
                 # Remove duplicate files if they are already in the file_extension list.
                 if file_extension in self._config.get("FILE_EXTENSIONS"):
-                    self.remove_duplicate_file(path)
+                    self.remove_duplicate_file(path, move_file)
 
     def run(self):
         """
@@ -132,6 +149,7 @@ class FileManager:
         print(f"Scanning {len(self.dir_paths)} directories with {os.cpu_count()} CPUs")
         pool = Pool()
         pool.map(self.loop_path, self.dir_paths)
+
         self.shared_data.write_cache("hash-dict.json", self.shared_data.get_hash_dict())
         self.shared_data.write_cache("size-dict.json", self.shared_data.get_size_dict())
 
