@@ -1,8 +1,1 @@
-{
-  "BUFF_SIZE": 65536,
-  "FILE_EXTENSIONS": ["jpg", "png", "gif"],
-  "DEST_PATH": "C:/Users/mduc0/OneDrive - Trường ĐH CNTT - University of Information Technology/Ảnh/tvc_01/parent/",
-  "BASE_PATH": ["C:/Users/mduc0/OneDrive - Trường ĐH CNTT - University of Information Technology/Ảnh/tvc_01/"],
-  "IS_CACHE_WRITABLE": true,
-  "IS_CACHE_READABLE": true
-}
+{"BUFF_SIZE": 65536, "FILE_EXTENSIONS": ["mp4", "mov"], "DEST_PATH": "F:/VideosDucMinh/", "BASE_PATH": ["E:/"], "IS_CACHE_WRITABLE": true, "IS_CACHE_READABLE": false}

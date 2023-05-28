@@ -1,4 +1,4 @@
-import os
+import os, stat
 import shutil
 import hashlib
 import pathlib
@@ -77,7 +77,14 @@ class FileManager:
         f.close()
     def move_to_parent_folder(self, file_path):
         dest_path = f'{self._config.get("DEST_PATH")}{self._get_file_name(file_path)}'
-        shutil.move(file_path, dest_path)
+        try:
+            shutil.move(file_path, dest_path)
+        except:
+            # path contains the path of the file that couldn't be removed
+            # let's just assume that it's read-only and unlink it.
+            print("Read_only file detected")
+            os.chmod(file_path, stat.S_IWRITE)
+            os.unlink(file_path)
         print(f"File moved from {file_path} to {dest_path}")
         self._write_log(f"File moved from {file_path} to {dest_path}", "moved.txt")
     def remove_duplicate_file(self, file_path, move_file):
@@ -92,7 +99,10 @@ class FileManager:
             self._write_log(f"Remove {file_path} due to duplication. Free {file_size} bytes", "removed.txt")
             self.shared_data.add_total_removal_size(file_size / pow(1024, 3))
             self.shared_data.add_total_removal_count(1)
-            os.remove(file_path)
+            try:
+                os.remove(file_path)
+            except:
+                print("Error: file cannot be removed")
         else:
             self.shared_data.set_hash(file_hash, True)
             self.shared_data.set_size(str(file_size), True)
