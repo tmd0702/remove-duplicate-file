@@ -78,7 +78,8 @@ class FileManager:
     def move_to_parent_folder(self, file_path):
         dest_path = f'{self._config.get("DEST_PATH")}{self._get_file_name(file_path)}'
         try:
-            shutil.move(file_path, dest_path)
+            # shutil.move(file_path, dest_path)
+            os.system(f"sudo mv {file_path} {dest_path}")
         except:
             # path contains the path of the file that couldn't be removed
             # let's just assume that it's read-only and unlink it.
@@ -100,7 +101,8 @@ class FileManager:
             self.shared_data.add_total_removal_size(file_size / pow(1024, 3))
             self.shared_data.add_total_removal_count(1)
             try:
-                os.remove(file_path)
+                # os.remove(file_path)
+                os.system(f"sudo rm {file_path}")
             except:
                 print("Error: file cannot be removed")
         else:
@@ -146,6 +148,7 @@ class FileManager:
                 file_extension = pathlib.Path(path).suffix[1:]
                 # Remove duplicate files if they are already in the file_extension list.
                 if file_extension in self._config.get("FILE_EXTENSIONS"):
+                    os.system(f"sudo mount -o remount,rw '{path}'")
                     self.remove_duplicate_file(path, move_file)
 
     def run(self):
