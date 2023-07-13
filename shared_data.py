@@ -13,6 +13,8 @@ class SharedData:
         self._size_dict = Manager().dict()
         self._total_removal_size = Manager().Value(float, 0.0)
         self._total_removal_count = Manager().Value("i", 0)
+        self._total_moved_size = Manager().Value(float, 0.0)
+        self._total_moved_count = Manager().Value("i", 0)
         # If the cache is readable, this method will construct the dictionaries
         if self._config.get("IS_CACHE_READABLE"):
             self._construct_dicts()
@@ -22,8 +24,8 @@ class SharedData:
          @brief Construct hash and size dictionaries from cache. This is called from __init__ and should not be called
         """
         try:
-            hash_cache = json.load(open("cache/hash-dict.json", "r"))
-            size_cache = json.load(open("cache/size-dict.json", "r"))
+            hash_cache = json.load(open(f"{self._config.get_root_dir()}cache/hash-dict.json", "r"))
+            size_cache = json.load(open(f"{self._config.get_root_dir()}cache/size-dict.json", "r"))
             self._hash_dict = Manager().dict(hash_cache)
             self._size_dict = Manager().dict(size_cache)
         except:
@@ -56,6 +58,18 @@ class SharedData:
          @param addition The number to add
         """
         self._total_removal_count.value += addition
+
+    def get_total_moved_count(self):
+        return self._total_moved_count.value
+
+    def get_total_moved_size(self):
+        return self._total_moved_size.value
+
+    def _add_total_moved_count(self, addition):
+        self._total_moved_count.value += addition
+
+    def _add_total_moved_size(self, addition):
+        self._total_moved_size.value += addition
 
     def get_hash_dict(self):
         """
@@ -111,5 +125,5 @@ class SharedData:
         """
         # Save the value to cache file if the cache file is writable
         if self._config.get("IS_CACHE_WRITABLE"):
-            with open(f"cache/{cache_file}", "w") as outfile:
+            with open(f"{self._config.get_root_dir()}cache/{cache_file}", "w") as outfile:
                 json.dump(value.copy(), outfile)

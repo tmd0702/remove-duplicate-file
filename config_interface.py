@@ -1,6 +1,7 @@
 import tkinter as tk
 import json
 from tkinter import filedialog
+import os
 settings = {
   "BUFF_SIZE": 65536,
   "FILE_EXTENSIONS": [],
@@ -8,16 +9,16 @@ settings = {
   "BASE_PATH": [],
   "IS_CACHE_WRITABLE": None,
   "IS_CACHE_READABLE": None
-}#json.loads(open("configs/config.json", "r", encoding='utf-8').read())
+}
+
 def save_settings():
     settings["BUFF_SIZE"] = 65536
     settings["IS_CACHE_WRITABLE"] = bool(cache_writable_var.get())
     settings["IS_CACHE_READABLE"] = bool(cache_readable_var.get())
     print(settings)
-    with open("configs/config.json", "w", encoding='utf8') as outfile:
+    with open(f"{os.path.dirname(os.path.abspath(__file__))}/configs/config.json".replace('\\', '/'), "w", encoding='utf8') as outfile:
         json.dump(settings, outfile, ensure_ascii=False)
 
-    pass
 
 def browse_base_directory():
     base_directory_path = filedialog.askdirectory()
@@ -36,7 +37,7 @@ def open_extension_window():
     extension_window.title("Extension Selection")
 
     # Define the list of image and audio extensions
-    extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'wav', 'mp3', 'mp4', 'ogg', 'mov']
+    extensions = ['jpg', 'jpeg', 'png', 'heic', 'avif', 'raf', 'gif', 'bmp', 'wav', 'mp3', 'mva', 'mp4', 'm4v', 'ogg', 'mov', 'xmp']
 
     # Create a list to store the checkbox variables
     checkbox_vars = []

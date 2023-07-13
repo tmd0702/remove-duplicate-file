@@ -1,1 +1,1 @@
-{"BUFF_SIZE": 65536, "FILE_EXTENSIONS": ["mp4", "mov"], "DEST_PATH": "F:/VideosDucMinh/", "BASE_PATH": ["E:/"], "IS_CACHE_WRITABLE": true, "IS_CACHE_READABLE": false}
+{"BUFF_SIZE": 65536, "FILE_EXTENSIONS": ["m4a"], "DEST_PATH": "F:/MusicDucMinh/", "BASE_PATH": ["E:/"], "IS_CACHE_WRITABLE": true, "IS_CACHE_READABLE": true}
